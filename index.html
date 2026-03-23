@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Software Support Chatbot</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    body {
+        margin: 0;
+        font-family: 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #6a5acd, #8a2be2);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .container {
+        width: 90%;
+        max-width: 900px;
+    }
+
+    .toggle {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .toggle button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 20px;
+        margin: 5px;
+        cursor: pointer;
+        background: #eee;
+        font-weight: bold;
+    }
+
+    .toggle .active {
+        background: #4b6cff;
+        color: white;
+    }
+
+    .card {
+        background: #f5f5f5;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .card h2 {
+        margin-top: 0;
+    }
+
+    .input-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    input {
+        flex: 1;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+    }
+
+    button.primary {
+        background: #4b6cff;
+        color: white;
+        border: none;
+        padding: 12px 18px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+
+    .success {
+        color: green;
+        margin-top: 10px;
+        font-size: 14px;
+    }
+
+    .chat-box {
+        height: 250px;
+        overflow-y: auto;
+        background: #eaeaea;
+        border-radius: 10px;
+        padding: 10px;
+        margin-top: 10px;
+    }
+
+    .msg {
+        padding: 10px;
+        margin: 8px 0;
+        border-radius: 10px;
+        max-width: 70%;
+    }
+
+    .user {
+        background: #4b6cff;
+        color: white;
+        margin-left: auto;
+    }
+
+    .bot {
+        background: #dcdcdc;
+    }
+
+    .chat-input {
+        display: flex;
+        margin-top: 10px;
+        gap: 10px;
+    }
+
+    .send-btn {
+        background: #4b6cff;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 10px;
+        cursor: pointer;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Toggle -->
+    <div class="toggle">
+        <button class="active">🌐 Website Mode</button>
+        <button>📄 File Mode</button>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="card">
+        <h2>📌 Step 1: Enter Website URL</h2>
+
+        <div class="input-group">
+            <input id="urlInput" type="text" placeholder="Enter website URL">
+            <button class="primary" onclick="loadWebsite()">🔍 Load Website</button>
+        </div>
+
+        <div id="status" class="success"></div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="card">
+        <h2>💬 Step 2: Chat with the AI Bot</h2>
+
+        <div class="chat-box" id="chatBox">
+            <div class="msg bot">Website loaded! Ask me anything about it.</div>
+        </div>
+
+        <div class="chat-input">
+            <input id="messageInput" type="text" placeholder="Ask something...">
+            <button class="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function loadWebsite() {
+    const url = document.getElementById("urlInput").value;
+
+    if (!url) {
+        alert("Enter URL");
+        return;
+    }
+
+    document.getElementById("status").innerText = "✔ Website loaded successfully";
+}
+
+function addMessage(text, type) {
+    const chatBox = document.getElementById("chatBox");
+
+    const msg = document.createElement("div");
+    msg.classList.add("msg", type);
+    msg.innerText = text;
+
+    chatBox.appendChild(msg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+async function sendMessage() {
+    const input = document.getElementById("messageInput");
+    const text = input.value.trim();
+
+    if (!text) return;
+
+    addMessage(text, "user");
+    input.value = "";
+
+    try {
+        const res = await fetch("http://127.0.0.1:5000/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: text })
+        });
+
+        const data = await res.json();
+        console.log("API Response:", data);  // DEBUG
+
+        // 🔥 FIX HERE
+        addMessage(data.response || "No response", "bot");
+
+    } catch (error) {
+        console.error("Fetch error:", error);
+        addMessage("Server not responding", "bot");
+    }
+}
+        document.getElementById("messageInput").addEventListener("keydown", function(e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "newww",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "start": "node backend/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
